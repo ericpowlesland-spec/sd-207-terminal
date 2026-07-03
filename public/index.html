@@ -44,6 +44,9 @@
       <!-- Header bar -->
       <header id="topbar">
         <div class="topbar-left">
+          <button id="hamburger" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">
+            <span></span><span></span><span></span>
+          </button>
           <h1 id="view-title">All Projects</h1>
           <span id="project-count-label" class="label-muted"></span>
         </div>
@@ -149,6 +152,9 @@
       <div id="bug-modal-content"></div>
     </div>
   </div>
+
+  <!-- Mobile sidebar overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay hidden" onclick="closeSidebar()"></div>
 
   <!-- Toast notifications -->
   <div id="toast-container"></div>

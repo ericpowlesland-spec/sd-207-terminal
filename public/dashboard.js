@@ -11,6 +11,26 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshAll();
 });
 
+/* ── Sidebar (mobile) ───────────────────────────────────────────── */
+function toggleSidebar() {
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('sidebar-overlay');
+  const isOpen   = sidebar.classList.contains('open');
+  if (isOpen) {
+    closeSidebar();
+  } else {
+    sidebar.classList.add('open');
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
 async function refreshAll() {
   await Promise.all([loadProjects(), loadBugs()]);
 }
@@ -673,6 +693,9 @@ function switchView(view) {
 
   const titles = { dashboard: 'All Projects', bugs: 'Bug Queue', 'add-project': 'New Project' };
   document.getElementById('view-title').textContent = titles[view] || view;
+
+  // Close sidebar on mobile after navigating
+  if (window.innerWidth <= 900) closeSidebar();
 }
 
 /* ── Toast ──────────────────────────────────────────────────────── */

@@ -16,7 +16,6 @@ function load() {
     try { store = JSON.parse(fs.readFileSync(DB_PATH, 'utf8')); }
     catch (e) { console.error('DB read error:', e.message); }
   }
-  // Ensure all collections exist
   store.projects   = store.projects   || [];
   store.components = store.components || [];
   store.bugs       = store.bugs       || [];
@@ -66,7 +65,7 @@ function computeHealth(components, bugs) {
     score -= Math.round((1 - completionRate) * 30);
   }
 
-  const openBugs    = bugs.filter(b => b.status === 'open');
+  const openBugs     = bugs.filter(b => b.status === 'open');
   const criticalBugs = openBugs.filter(b => b.severity === 'critical');
   const highBugs     = openBugs.filter(b => b.severity === 'high');
   const restBugs     = openBugs.length - criticalBugs.length - highBugs.length;
@@ -231,98 +230,612 @@ function _touchProject(id) {
   if (p) p.updated_at = now();
 }
 
-// ─── Seed ─────────────────────────────────────────────────────────────────────
+// ─── Real Project Seed Data ───────────────────────────────────────────────────
 
 function seedDemoData() {
   if (store.projects.length > 0) return;
 
-  const mainCrm = createProject({
-    name: 'Main CRM Platform',
-    description: 'Core CRM platform with 30 integrated CRMs and 15 front-end websites',
-    category: 'crm',
+  // ── Save-A-Scoop E-Commerce ──────────────────────────────────────────────
+  const saveascoop = createProject({
+    name: 'Save-A-Scoop E-Commerce',
+    description: 'Multi-role ice cream e-commerce platform with influencer/rep attribution, dealer portals, NMI payments, auto-print labels, and advanced order management.',
+    category: 'ecommerce',
+    live_url: '',
     status: 'active',
   });
+  [
+    { name: 'Public Storefront',         type: 'website',     status: 'complete' },
+    { name: 'Dealer Portal',             type: 'website',     status: 'complete' },
+    { name: 'Influencer Dashboard',      type: 'website',     status: 'complete' },
+    { name: 'Admin Panel',               type: 'website',     status: 'complete' },
+    { name: 'NMI Payment Integration',   type: 'integration', status: 'complete' },
+    { name: 'Referral / Attribution',    type: 'feature',     status: 'complete' },
+    { name: 'Auto-Print Label System',   type: 'feature',     status: 'complete' },
+    { name: 'Shipping Integration',      type: 'integration', status: 'complete' },
+    { name: 'Influencer Contract Gen',   type: 'feature',     status: 'complete' },
+    { name: 'Accounting Module',         type: 'feature',     status: 'in_progress' },
+    { name: 'E2E Testing Suite',         type: 'backend',     status: 'in_progress' },
+    { name: 'Dealer Bundle Pages',       type: 'website',     status: 'in_progress' },
+  ].forEach(c => createComponent(saveascoop.id, c));
 
-  const crmNames = [
-    'Salesforce','HubSpot','Zoho CRM','Pipedrive','Freshsales',
-    'Monday.com CRM','Keap','ActiveCampaign','Copper','Insightly',
-    'Close','Nutshell','Sugar CRM','Vtiger','Bitrix24',
-    'Agile CRM','Streak','Capsule','Nimble','Apptivo',
-    'Really Simple Systems','Less Annoying CRM','Ontraport','Drip','Creatio',
-    'Dynamics 365','Oracle CRM','SAP CRM','Zendesk Sell','Podio',
+  // ── MainelyCRM ───────────────────────────────────────────────────────────
+  const mcrm = createProject({
+    name: 'MainelyCRM',
+    description: 'One CRM platform, many business models. Single PHP/MySQL codebase hosting admin dashboards for any client with industry packs deciding dashboard contents.',
+    category: 'crm',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Core Authentication & RBAC', type: 'backend',     status: 'complete' },
+    { name: 'Dashboard Engine',           type: 'backend',     status: 'complete' },
+    { name: 'Industry Pack System',       type: 'backend',     status: 'complete' },
+    { name: 'Client Provisioning',        type: 'backend',     status: 'complete' },
+    { name: 'Module: Records',            type: 'feature',     status: 'complete' },
+    { name: 'Module: Forms',              type: 'feature',     status: 'complete' },
+    { name: 'Module: Dashboard',          type: 'feature',     status: 'complete' },
+    { name: 'Module: Launcher',           type: 'feature',     status: 'complete' },
+    { name: 'Module: Reporting',          type: 'feature',     status: 'in_progress' },
+    { name: 'Multi-tenant Billing',       type: 'feature',     status: 'in_progress' },
+    { name: 'Client-facing Portal',       type: 'website',     status: 'not_started' },
+    { name: 'API for 3rd-party integrations', type: 'api',    status: 'not_started' },
+  ].forEach(c => createComponent(mcrm.id, c));
+
+  // ── Strategy & Design LLC (SD207) ────────────────────────────────────────
+  const sd207 = createProject({
+    name: 'Strategy & Design LLC (SD-207)',
+    description: 'Company marketing website with admin portal, portfolio, case studies, client automation, build engine, and analytics.',
+    category: 'website',
+    live_url: 'https://sd207.com',
+    status: 'active',
+  });
+  [
+    { name: 'Marketing Website',     type: 'website',  status: 'complete' },
+    { name: 'Portfolio / Case Studies', type: 'website', status: 'complete' },
+    { name: 'Admin Portal',          type: 'website',  status: 'complete' },
+    { name: 'Build Engine',          type: 'backend',  status: 'complete' },
+    { name: 'Client Automation',     type: 'feature',  status: 'complete' },
+    { name: 'Analytics Dashboard',   type: 'feature',  status: 'complete' },
+    { name: 'API',                   type: 'api',      status: 'complete' },
+    { name: 'Command Center (this)', type: 'tool',     status: 'in_progress' },
+  ].forEach(c => createComponent(sd207.id, c));
+
+  // ── Web Dev Team Platform ────────────────────────────────────────────────
+  const webdevteam = createProject({
+    name: 'Web Dev Team Platform',
+    description: 'Internal team platform with project builder, multi-file code editor, code dashboard, auth, and security hardening.',
+    category: 'saas',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Authentication',      type: 'backend',  status: 'complete' },
+    { name: 'Project Builder',     type: 'feature',  status: 'complete' },
+    { name: 'Code Editor',         type: 'feature',  status: 'complete' },
+    { name: 'Code Dashboard',      type: 'feature',  status: 'complete' },
+    { name: 'API Layer',           type: 'api',      status: 'complete' },
+    { name: 'File Upload / SVG Security', type: 'feature', status: 'complete' },
+    { name: 'Session Fixation Fix', type: 'backend', status: 'complete' },
+    { name: 'Multi-user Collab',   type: 'feature',  status: 'not_started' },
+  ].forEach(c => createComponent(webdevteam.id, c));
+
+  // ── Dev IQ Dashboard ─────────────────────────────────────────────────────
+  const deviq = createProject({
+    name: 'Dev IQ Dashboard',
+    description: 'DevOps hub and project template builder with code editor, content library, animation system, and full production-ready backend.',
+    category: 'saas',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Project Manager',      type: 'feature',  status: 'complete' },
+    { name: 'Code Editor',          type: 'feature',  status: 'complete' },
+    { name: 'Template Builder',     type: 'feature',  status: 'complete' },
+    { name: 'Content Library',      type: 'feature',  status: 'complete' },
+    { name: 'Animation System',     type: 'feature',  status: 'complete' },
+    { name: 'Backend API',          type: 'api',      status: 'complete' },
+    { name: 'Database Layer',       type: 'backend',  status: 'complete' },
+    { name: 'Production Deploy',    type: 'backend',  status: 'in_progress' },
+  ].forEach(c => createComponent(deviq.id, c));
+
+  // ── MERCH (POD SaaS) ─────────────────────────────────────────────────────
+  const merch = createProject({
+    name: 'MERCH — Print-on-Demand SaaS',
+    description: 'Multi-provider print-on-demand SaaS store with native ad management across Facebook, Google Ads, TikTok Ads, and X Ads.',
+    category: 'saas',
+    live_url: '',
+    status: 'in_progress',
+  });
+  [
+    { name: 'Storefront',              type: 'website',     status: 'complete' },
+    { name: 'Shopping Cart',           type: 'feature',     status: 'complete' },
+    { name: 'Checkout / Payments',     type: 'feature',     status: 'complete' },
+    { name: 'Admin Panel',             type: 'website',     status: 'complete' },
+    { name: 'Multi-provider Print API',type: 'integration', status: 'in_progress' },
+    { name: 'Facebook Ads Manager',    type: 'integration', status: 'not_started' },
+    { name: 'Google Ads Manager',      type: 'integration', status: 'not_started' },
+    { name: 'TikTok Ads Manager',      type: 'integration', status: 'not_started' },
+    { name: 'X Ads Manager',           type: 'integration', status: 'not_started' },
+    { name: 'Analytics Dashboard',     type: 'feature',     status: 'not_started' },
+  ].forEach(c => createComponent(merch.id, c));
+
+  // ── UnitProof ────────────────────────────────────────────────────────────
+  const unitproof = createProject({
+    name: 'UnitProof',
+    description: 'Self-hosted Record360 replacement — phone-first equipment condition documentation and proof-of-delivery signatures for an equipment-servicing dealership.',
+    category: 'saas',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Photo Documentation',   type: 'feature',  status: 'complete' },
+    { name: 'Digital Signatures',    type: 'feature',  status: 'complete' },
+    { name: 'Customer Portal',       type: 'website',  status: 'complete' },
+    { name: 'Engagement Tracking',   type: 'feature',  status: 'complete' },
+    { name: 'Side-by-side Compare',  type: 'feature',  status: 'complete' },
+    { name: 'Admin Dashboard',       type: 'website',  status: 'complete' },
+    { name: 'PDF Report Export',     type: 'feature',  status: 'in_progress' },
+    { name: 'Mobile-native PWA',     type: 'mobile',   status: 'not_started' },
+  ].forEach(c => createComponent(unitproof.id, c));
+
+  // ── SR1 Logistics Portal ─────────────────────────────────────────────────
+  const logistics = createProject({
+    name: 'SR1 Logistics Portal',
+    description: 'Comprehensive logistics management system for SR1 Companies — driver schedules, deliveries, transfer fees, and historical records.',
+    category: 'saas',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Driver Schedule Management', type: 'feature',  status: 'complete' },
+    { name: 'Delivery Tracking',          type: 'feature',  status: 'complete' },
+    { name: 'Transfer Fee Management',    type: 'feature',  status: 'complete' },
+    { name: 'Historical Records',         type: 'feature',  status: 'complete' },
+    { name: 'Admin Dashboard',            type: 'website',  status: 'complete' },
+    { name: 'Import / Data Migration',    type: 'backend',  status: 'complete' },
+  ].forEach(c => createComponent(logistics.id, c));
+
+  // ── ShopTrack ────────────────────────────────────────────────────────────
+  const shoptrack = createProject({
+    name: 'ShopTrack',
+    description: 'STR turnover shop tracker — QR-code-based laundry bag and package tracking for a short-term-rental cleaning company.',
+    category: 'saas',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'QR Code Intake',        type: 'feature',  status: 'complete' },
+    { name: 'Property Tracking',     type: 'feature',  status: 'complete' },
+    { name: 'Laundry Bag Tracking',  type: 'feature',  status: 'complete' },
+    { name: 'Package Tracking',      type: 'feature',  status: 'complete' },
+    { name: 'Thermal Sticker Print', type: 'feature',  status: 'complete' },
+    { name: 'Staff Dashboard',       type: 'website',  status: 'complete' },
+  ].forEach(c => createComponent(shoptrack.id, c));
+
+  // ── SR1 Trailers Warranty Dashboard ──────────────────────────────────────
+  const sr1trailers = createProject({
+    name: 'SR1 Trailers Warranty Dashboard',
+    description: 'Warranty tracking and management dashboard for SR1 Trailers — Loudon, NH. Includes job rates, meeting agendas, and data import.',
+    category: 'saas',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Warranty Dashboard',    type: 'feature',  status: 'complete' },
+    { name: 'Job Rate Management',   type: 'feature',  status: 'complete' },
+    { name: 'Data Import',           type: 'backend',  status: 'complete' },
+    { name: 'Meeting Agendas',       type: 'feature',  status: 'complete' },
+  ].forEach(c => createComponent(sr1trailers.id, c));
+
+  // ── Turner Equipment Dashboard (AGING) ───────────────────────────────────
+  const aging = createProject({
+    name: 'Turner Equipment Dashboard',
+    description: 'Equipment aging and repair analytics dashboard for Turner location — tracks unit repair timelines, tech performance, parts costs, and lot management.',
+    category: 'analytics',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Repair Tracking',       type: 'feature',  status: 'complete' },
+    { name: 'Tech Performance Reports', type: 'feature', status: 'complete' },
+    { name: 'Aging Analysis',        type: 'feature',  status: 'complete' },
+    { name: 'Lot Management',        type: 'feature',  status: 'complete' },
+    { name: 'CSV Data Seeder',       type: 'backend',  status: 'complete' },
+  ].forEach(c => createComponent(aging.id, c));
+
+  // ── Repair Dashboard ─────────────────────────────────────────────────────
+  const repairDash = createProject({
+    name: 'Equipment Service & Sales Dashboard',
+    description: 'Multi-location equipment service and sales dashboard with unit tracking, location management, service records, and repair status.',
+    category: 'analytics',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Unit Tracking',         type: 'feature',  status: 'complete' },
+    { name: 'Location Management',   type: 'feature',  status: 'complete' },
+    { name: 'Service Records',       type: 'feature',  status: 'complete' },
+    { name: 'Repair Status',         type: 'feature',  status: 'complete' },
+    { name: 'Dashboard API',         type: 'api',      status: 'complete' },
+  ].forEach(c => createComponent(repairDash.id, c));
+
+  // ── PROPS Trading Tool ───────────────────────────────────────────────────
+  const props = createProject({
+    name: 'PROPS Trading Tool',
+    description: 'Stock/prop trading dashboard and data tool with realistic data generation, trade tracking, daily adds, and analytics.',
+    category: 'tool',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Trade Dashboard',       type: 'feature',  status: 'complete' },
+    { name: 'Daily Trade Adds',      type: 'feature',  status: 'complete' },
+    { name: 'Realistic Data Gen',    type: 'backend',  status: 'complete' },
+    { name: 'Credit Memo System',    type: 'feature',  status: 'complete' },
+    { name: 'Browser Profile Mgmt',  type: 'feature',  status: 'complete' },
+  ].forEach(c => createComponent(props.id, c));
+
+  // ── TYM Tool ─────────────────────────────────────────────────────────────
+  const tym = createProject({
+    name: 'TYM Tool',
+    description: 'Python browser automation tool with multi-profile support, dashboard, credit memo management, and backup system.',
+    category: 'tool',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Python Automation Engine', type: 'backend',  status: 'complete' },
+    { name: 'Web Dashboard',            type: 'website',  status: 'complete' },
+    { name: 'Multi-browser Profiles',   type: 'feature',  status: 'complete' },
+    { name: 'Credit Memo Manager',      type: 'feature',  status: 'complete' },
+    { name: 'Backup System',            type: 'backend',  status: 'complete' },
+  ].forEach(c => createComponent(tym.id, c));
+
+  // ── Salem Kustom Leathers ────────────────────────────────────────────────
+  const skl = createProject({
+    name: 'Salem Kustom Leathers',
+    description: 'Custom leather craftsman e-commerce — storefront, user accounts, shopping cart, Stripe checkout, and full admin dashboard.',
+    category: 'ecommerce',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Storefront',     type: 'website',     status: 'complete' },
+    { name: 'User Accounts',         type: 'feature',     status: 'complete' },
+    { name: 'Shopping Cart',         type: 'feature',     status: 'complete' },
+    { name: 'Stripe Checkout',       type: 'integration', status: 'complete' },
+    { name: 'Product Management',    type: 'feature',     status: 'complete' },
+    { name: 'Order Management',      type: 'feature',     status: 'complete' },
+    { name: 'Admin Dashboard',       type: 'website',     status: 'complete' },
+    { name: 'Lead Tracking',         type: 'feature',     status: 'complete' },
+    { name: 'Analytics',             type: 'feature',     status: 'complete' },
+  ].forEach(c => createComponent(skl.id, c));
+
+  // ── TREELOCK Artist Site + Merch ─────────────────────────────────────────
+  const treelock = createProject({
+    name: 'TREELOCK — Artist Website & Merch',
+    description: 'Music artist website with Spotify embed, merch store, Printify integration, and full checkout.',
+    category: 'ecommerce',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Artist Website',        type: 'website',     status: 'complete' },
+    { name: 'Music / Spotify Embed', type: 'integration', status: 'complete' },
+    { name: 'Merch Store',           type: 'website',     status: 'complete' },
+    { name: 'Printify Integration',  type: 'integration', status: 'complete' },
+    { name: 'Checkout',              type: 'feature',     status: 'complete' },
+    { name: 'Admin Panel',           type: 'website',     status: 'complete' },
+  ].forEach(c => createComponent(treelock.id, c));
+
+  // ── K&L Auto Detailing ───────────────────────────────────────────────────
+  const detailing = createProject({
+    name: 'K&L Auto Detailing',
+    description: 'Mobile-first "Cinematic Garage" design website + owner portal for K&L Auto Detailing (Trevor Knudsen). Built for Hostinger deploy.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Owner Admin Portal',    type: 'website',  status: 'complete' },
+    { name: 'Service Management',    type: 'feature',  status: 'complete' },
+    { name: 'Booking System',        type: 'feature',  status: 'complete' },
+    { name: 'Gallery',               type: 'feature',  status: 'complete' },
+    { name: 'API',                   type: 'api',      status: 'complete' },
+  ].forEach(c => createComponent(detailing.id, c));
+
+  // ── Small Wonders Child Care ─────────────────────────────────────────────
+  const smallwonders = createProject({
+    name: 'Small Wonders Child Care',
+    description: 'Rebuild of smallwondersccf.com — mobile-first public site plus PHP/MySQL admin dashboard and parent portal.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Parent Portal',         type: 'website',  status: 'complete' },
+    { name: 'Admin Dashboard',       type: 'website',  status: 'complete' },
+    { name: 'Child Records',         type: 'feature',  status: 'complete' },
+    { name: 'Billing Management',    type: 'feature',  status: 'complete' },
+    { name: 'Media Library',         type: 'feature',  status: 'complete' },
+    { name: 'Messaging System',      type: 'feature',  status: 'complete' },
+    { name: 'Staff Portal',          type: 'website',  status: 'in_progress' },
+  ].forEach(c => createComponent(smallwonders.id, c));
+
+  // ── Traxler Trucking ─────────────────────────────────────────────────────
+  const traxler = createProject({
+    name: 'Traxler Trucking, Inc.',
+    description: 'Full PHP/MySQL site for Traxler Trucking — marketing website, working quote form with lead DB, and back-office dispatch portal mockup.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Marketing Website',     type: 'website',  status: 'complete' },
+    { name: 'Quote / Contact Form',  type: 'feature',  status: 'complete' },
+    { name: 'Lead Database',         type: 'backend',  status: 'complete' },
+    { name: 'Back-office Portal',    type: 'website',  status: 'complete' },
+    { name: 'Admin Panel',           type: 'website',  status: 'complete' },
+  ].forEach(c => createComponent(traxler.id, c));
+
+  // ── Travis West LLC ──────────────────────────────────────────────────────
+  const twllc = createProject({
+    name: 'Travis West LLC',
+    description: 'Mobile-first general contractors website with service pages, contact form, and admin.',
+    category: 'website',
+    live_url: '',
+    status: 'complete',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Service Pages',         type: 'website',  status: 'complete' },
+    { name: 'Contact Form',          type: 'feature',  status: 'complete' },
+    { name: 'Admin',                 type: 'website',  status: 'complete' },
+  ].forEach(c => createComponent(twllc.id, c));
+
+  // ── TWCS ─────────────────────────────────────────────────────────────────
+  const twcs = createProject({
+    name: 'Travis West Contracting Services',
+    description: 'PHP/MySQL contractor services website with admin portal and privacy policy.',
+    category: 'website',
+    live_url: '',
+    status: 'complete',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Admin Portal',          type: 'website',  status: 'complete' },
+    { name: 'Contact / Leads',       type: 'feature',  status: 'complete' },
+  ].forEach(c => createComponent(twcs.id, c));
+
+  // ── T&G Services ─────────────────────────────────────────────────────────
+  const tgservices = createProject({
+    name: 'T&G Services',
+    description: 'Landing site for T&G Services — automotive / mechanical repair shop. PHP + MySQL + HTML/CSS.',
+    category: 'website',
+    live_url: '',
+    status: 'complete',
+  });
+  [
+    { name: 'Landing Page',          type: 'website',  status: 'complete' },
+    { name: 'Services Page',         type: 'website',  status: 'complete' },
+    { name: 'Appointment Booking',   type: 'feature',  status: 'complete' },
+    { name: 'Admin Portal',          type: 'website',  status: 'complete' },
+    { name: 'Contact Form',          type: 'feature',  status: 'complete' },
+  ].forEach(c => createComponent(tgservices.id, c));
+
+  // ── T&B Custom Clean ─────────────────────────────────────────────────────
+  const tbcleaning = createProject({
+    name: 'T&B Custom Clean',
+    description: 'Cleaning company website with geo-targeting, multi-location review feeds, gallery, and admin portal.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Gallery',               type: 'feature',  status: 'complete' },
+    { name: 'Service Area Pages',    type: 'website',  status: 'complete' },
+    { name: 'Contact Form',          type: 'feature',  status: 'complete' },
+    { name: 'Admin / Login',         type: 'website',  status: 'complete' },
+    { name: 'Geo-targeting',         type: 'feature',  status: 'complete' },
+    { name: 'Review Feed Migration', type: 'backend',  status: 'complete' },
+  ].forEach(c => createComponent(tbcleaning.id, c));
+
+  // ── Tireman / Local Tires ────────────────────────────────────────────────
+  const tireman = createProject({
+    name: 'Local Tires — Mobile Tire Service',
+    description: 'Website and CRM for Local Tires mobile tire service and roadside assistance business.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Customer Portal',       type: 'website',  status: 'complete' },
+    { name: 'Admin Dashboard',       type: 'website',  status: 'complete' },
+    { name: 'Booking / Scheduling',  type: 'feature',  status: 'complete' },
+    { name: 'Install.php Setup',     type: 'backend',  status: 'complete' },
+  ].forEach(c => createComponent(tireman.id, c));
+
+  // ── Artist Spotlight ─────────────────────────────────────────────────────
+  const artistSpotlight = createProject({
+    name: 'Artist Spotlight',
+    description: 'Artist EPK and spotlight website with gallery, press kit, subscription, and Suno auto-generation integration.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Artist Profile Page',   type: 'website',  status: 'complete' },
+    { name: 'EPK (Press Kit)',        type: 'website',  status: 'complete' },
+    { name: 'Gallery',               type: 'feature',  status: 'complete' },
+    { name: 'Subscribe System',      type: 'feature',  status: 'complete' },
+    { name: 'Admin Panel',           type: 'website',  status: 'complete' },
+    { name: 'Suno Auto-gen',         type: 'integration', status: 'in_progress' },
+    { name: 'DB Setup / Migrations', type: 'backend',  status: 'complete' },
+  ].forEach(c => createComponent(artistSpotlight.id, c));
+
+  // ── NOIR Studio (Hair Salon) ─────────────────────────────────────────────
+  const hairsalon = createProject({
+    name: 'NOIR Studio — Hair Salon',
+    description: 'Full hair salon website with online booking, gallery, reviews, staff schedules, and service management.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Online Booking',        type: 'feature',  status: 'complete' },
+    { name: 'Gallery',               type: 'feature',  status: 'complete' },
+    { name: 'Reviews',               type: 'feature',  status: 'complete' },
+    { name: 'Staff Schedule',        type: 'feature',  status: 'complete' },
+    { name: 'Services Management',   type: 'feature',  status: 'complete' },
+    { name: 'Admin Portal',          type: 'website',  status: 'in_progress' },
+  ].forEach(c => createComponent(hairsalon.id, c));
+
+  // ── Fade & Blade Barbershop ───────────────────────────────────────────────
+  const barbershop = createProject({
+    name: 'Fade & Blade Barbershop',
+    description: 'Premium barbershop website with online booking, barber profiles, service management, and appointment system.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Barber Profiles',       type: 'feature',  status: 'complete' },
+    { name: 'Online Booking',        type: 'feature',  status: 'complete' },
+    { name: 'Services Management',   type: 'feature',  status: 'complete' },
+    { name: 'Appointments System',   type: 'feature',  status: 'complete' },
+    { name: 'Gallery',               type: 'feature',  status: 'complete' },
+  ].forEach(c => createComponent(barbershop.id, c));
+
+  // ── Hound & Hand Grooming ─────────────────────────────────────────────────
+  const houndhand = createProject({
+    name: 'Hound & Hand Grooming Co.',
+    description: 'Boutique dog & cat grooming website with booking system, customer CRM, gallery, and groomer dashboard.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Online Booking',        type: 'feature',  status: 'complete' },
+    { name: 'Customer CRM',          type: 'feature',  status: 'complete' },
+    { name: 'Gallery',               type: 'feature',  status: 'complete' },
+    { name: 'Groomer Dashboard',     type: 'website',  status: 'complete' },
+  ].forEach(c => createComponent(houndhand.id, c));
+
+  // ── Elevate Nutrition ─────────────────────────────────────────────────────
+  const elevate = createProject({
+    name: 'Elevate Nutrition',
+    description: 'Smoothie, juice & daily fuel shop website with booking, customer CRM, and staff dashboard.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Menu / Products',       type: 'feature',  status: 'complete' },
+    { name: 'Booking System',        type: 'feature',  status: 'complete' },
+    { name: 'Customer CRM',          type: 'feature',  status: 'complete' },
+    { name: 'Staff Dashboard',       type: 'website',  status: 'complete' },
+    { name: 'Gallery',               type: 'feature',  status: 'complete' },
+  ].forEach(c => createComponent(elevate.id, c));
+
+  // ── Cardinal Heating & Cooling ───────────────────────────────────────────
+  const hvac = createProject({
+    name: 'Cardinal Heating & Cooling',
+    description: 'HVAC contractor website for Cardinal Heating & Cooling, Carbondale — service pages, tech profiles, booking, gallery.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Service Pages',         type: 'website',  status: 'complete' },
+    { name: 'Tech Profiles',         type: 'feature',  status: 'complete' },
+    { name: 'Booking System',        type: 'feature',  status: 'complete' },
+    { name: 'Gallery',               type: 'feature',  status: 'complete' },
+    { name: 'Customer CRM',          type: 'feature',  status: 'complete' },
+    { name: 'Dashboard',             type: 'website',  status: 'complete' },
+  ].forEach(c => createComponent(hvac.id, c));
+
+  // ── EVERLETRIC ───────────────────────────────────────────────────────────
+  const everletric = createProject({
+    name: 'EVERLETRIC',
+    description: 'Licensed electrical contractor website for Carbondale, IL — electrician profiles, services, booking, and dashboard.',
+    category: 'website',
+    live_url: '',
+    status: 'active',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Electrician Profiles',  type: 'feature',  status: 'complete' },
+    { name: 'Services',              type: 'website',  status: 'complete' },
+    { name: 'Booking System',        type: 'feature',  status: 'complete' },
+    { name: 'Customer Dashboard',    type: 'website',  status: 'complete' },
+  ].forEach(c => createComponent(everletric.id, c));
+
+  // ── Ace Contracting Services ─────────────────────────────────────────────
+  const ace = createProject({
+    name: 'Ace Contracting Services',
+    description: 'Trusted contractor services website for Lewiston, ME — services, gallery, admin.',
+    category: 'website',
+    live_url: '',
+    status: 'complete',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Services / Gallery',    type: 'website',  status: 'complete' },
+    { name: 'Admin',                 type: 'website',  status: 'complete' },
+  ].forEach(c => createComponent(ace.id, c));
+
+  // ── Our Sandbox ───────────────────────────────────────────────────────────
+  const oursandbox = createProject({
+    name: 'Our Sandbox',
+    description: 'Custom sandblasting & etched glass gifts website — services, gallery, contact, sitemap, privacy policy.',
+    category: 'website',
+    live_url: '',
+    status: 'complete',
+  });
+  [
+    { name: 'Public Website',        type: 'website',  status: 'complete' },
+    { name: 'Services Page',         type: 'website',  status: 'complete' },
+    { name: 'Gallery',               type: 'feature',  status: 'complete' },
+    { name: 'Contact Form',          type: 'feature',  status: 'complete' },
+    { name: 'Admin Portal',          type: 'website',  status: 'complete' },
+  ].forEach(c => createComponent(oursandbox.id, c));
+
+  // ── Sites Template Library ───────────────────────────────────────────────
+  const sites = createProject({
+    name: 'Industry Website Template Library',
+    description: '34 industry-specific website templates — autorepair, brewery, catering, charters, construction, daycare, electrical, hotel, lawfirm, and more.',
+    category: 'template',
+    live_url: '',
+    status: 'active',
+  });
+  const siteTemplates = [
+    'Auto Repair', 'Brewery', 'Catering', 'Charters', 'Collectibles',
+    'Construction', 'Daycare', 'Electrical', 'Events / Media', 'Fence',
+    'Flooring', 'Food Truck', 'Hotel', 'HVAC', 'Law Firm',
+    'Lawn Care', 'Lila Fence', 'Logging', 'Logistics', 'Marina',
+    'Pest Control', 'Pet Grooming', 'Photography', 'Plumbing', 'Pool Cleaning',
+    'Portfolio', 'Property Management', 'Real Estate', 'Restaurant', 'Roofing',
+    'Animal Shelter', '96 Farm Road', 'Charters (alt)', 'Logistics (alt)',
   ];
-  const crmStatuses = [
-    'complete','complete','complete','complete','complete',
-    'complete','complete','in_progress','in_progress','in_progress',
-    'in_progress','not_started','not_started','not_started','not_started',
-    'not_started','not_started','not_started','not_started','not_started',
-    'not_started','not_started','not_started','not_started','not_started',
-    'not_started','not_started','not_started','not_started','not_started',
-  ];
-  crmNames.forEach((name, i) =>
-    createComponent(mainCrm.id, { name, type: 'crm', status: crmStatuses[i], description: `${name} CRM integration` })
+  siteTemplates.forEach((name, i) =>
+    createComponent(sites.id, {
+      name,
+      type: 'template',
+      status: i < 28 ? 'complete' : 'in_progress',
+      description: `${name} industry website template`,
+    })
   );
 
-  const websiteNames = [
-    'Landing Page','Client Portal','Admin Dashboard','Analytics Hub','Reporting Suite',
-    'Mobile App (iOS)','Mobile App (Android)','Public API Docs','Partner Portal','Help Center',
-    'Onboarding Wizard','Billing Portal','Status Page','Blog','Marketing Site',
-  ];
-  const webStatuses = [
-    'complete','complete','complete','in_progress','in_progress',
-    'not_started','not_started','not_started','not_started','not_started',
-    'not_started','not_started','not_started','not_started','not_started',
-  ];
-  websiteNames.forEach((name, i) =>
-    createComponent(mainCrm.id, { name, type: 'website', status: webStatuses[i], description: `${name} frontend` })
-  );
-
-  const proj2 = createProject({ name: 'E-Commerce Platform', description: 'Full-stack online store with payment integration', category: 'ecommerce', status: 'active' });
-  createComponent(proj2.id, { name: 'Product Catalog',      type: 'feature',      status: 'complete' });
-  createComponent(proj2.id, { name: 'Shopping Cart',        type: 'feature',      status: 'complete' });
-  createComponent(proj2.id, { name: 'Stripe Checkout',      type: 'integration',  status: 'complete' });
-  createComponent(proj2.id, { name: 'Inventory Management', type: 'feature',      status: 'in_progress' });
-  createComponent(proj2.id, { name: 'Admin Panel',          type: 'website',      status: 'in_progress' });
-  createComponent(proj2.id, { name: 'Email Notifications',  type: 'integration',  status: 'not_started' });
-
-  const proj3 = createProject({ name: 'Client Booking System', description: 'Appointment scheduling and calendar management', category: 'saas', status: 'active' });
-  createComponent(proj3.id, { name: 'Calendar View',          type: 'feature',     status: 'complete' });
-  createComponent(proj3.id, { name: 'Booking Form',           type: 'feature',     status: 'complete' });
-  createComponent(proj3.id, { name: 'SMS Reminders',          type: 'integration', status: 'not_started' });
-  createComponent(proj3.id, { name: 'Google Calendar Sync',   type: 'integration', status: 'not_started' });
-
-  const proj4 = createProject({ name: 'Analytics Dashboard', description: 'Real-time business intelligence and reporting', category: 'analytics', status: 'in_progress' });
-  createComponent(proj4.id, { name: 'Data Pipeline', type: 'backend',  status: 'in_progress' });
-  createComponent(proj4.id, { name: 'Chart Library',  type: 'frontend', status: 'not_started' });
-  createComponent(proj4.id, { name: 'Export to PDF',  type: 'feature',  status: 'not_started' });
-
-  createBugReport({
-    project_id:          mainCrm.id,
-    affected_area:       'Salesforce Integration',
-    bug_type:            'sync',
-    description:         'Contact sync fails silently when more than 500 records are queued',
-    steps_to_reproduce:  '1. Queue 500+ contacts for sync\n2. Trigger manual sync\n3. Check sync log',
-    expected_behavior:   'All contacts sync successfully',
-    actual_behavior:     'Sync stops at record 487 with no error message',
-    severity:            'high',
-    frequency:           'always',
-    reporter_name:       'System Monitor',
-    reporter_email:      'monitor@internal.com',
-  });
-
-  createBugReport({
-    project_id:   proj2.id,
-    affected_area:'Stripe Checkout',
-    bug_type:     'payment',
-    description:  'Checkout form freezes on mobile Safari after entering card details',
-    steps_to_reproduce: '1. Open site on iPhone Safari\n2. Add item to cart\n3. Enter card number\n4. Form becomes unresponsive',
-    severity:     'critical',
-    frequency:    'always',
-    reporter_name:'Jane Customer',
-    reporter_email:'jane@example.com',
-    browser:      'Safari 17',
-    device:       'iPhone 15',
-  });
+  console.log('Real project data seeded:', store.projects.length, 'projects');
 }
 
 module.exports = {
