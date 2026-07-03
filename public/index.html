@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SD-207 Command Center</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">SD</div>
+        <div class="logo-text">
+          <span class="logo-title">Command Center</span>
+          <span class="logo-sub">SD-207 Operations</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-view="dashboard" onclick="switchView('dashboard')">
+          <span class="nav-icon">&#9783;</span> Dashboard
+        </button>
+        <button class="nav-btn" data-view="bugs" onclick="switchView('bugs')">
+          <span class="nav-icon">&#9873;</span> Bug Queue
+          <span id="bug-count-badge" class="badge badge-red hidden">0</span>
+        </button>
+        <button class="nav-btn" data-view="add-project" onclick="switchView('add-project')">
+          <span class="nav-icon">+</span> New Project
+        </button>
+      </nav>
+
+      <div class="sidebar-status">
+        <div class="status-dot" id="ws-status-dot"></div>
+        <span id="ws-status-text">Connecting...</span>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main id="main">
+
+      <!-- Header bar -->
+      <header id="topbar">
+        <div class="topbar-left">
+          <h1 id="view-title">All Projects</h1>
+          <span id="project-count-label" class="label-muted"></span>
+        </div>
+        <div class="topbar-right">
+          <div id="live-alerts" class="alert-strip hidden"></div>
+          <button class="btn btn-ghost" onclick="refreshAll()">Refresh</button>
+        </div>
+      </header>
+
+      <!-- Dashboard view -->
+      <div id="view-dashboard" class="view active">
+        <div id="stats-bar">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-total">-</div>
+            <div class="stat-label">Total Projects</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-active">-</div>
+            <div class="stat-label">Active</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value stat-green" id="stat-avg-health">-</div>
+            <div class="stat-label">Avg Health</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value stat-red" id="stat-open-bugs">-</div>
+            <div class="stat-label">Open Bugs</div>
+          </div>
+        </div>
+
+        <div id="project-grid"></div>
+      </div>
+
+      <!-- Bug Queue view -->
+      <div id="view-bugs" class="view">
+        <div id="bug-queue-list"></div>
+      </div>
+
+      <!-- Add Project view -->
+      <div id="view-add-project" class="view">
+        <div class="form-card">
+          <h2>Add New Project</h2>
+          <form id="add-project-form" onsubmit="submitNewProject(event)">
+            <div class="form-row">
+              <label>Project Name *</label>
+              <input type="text" name="name" required placeholder="e.g. Client Booking System" />
+            </div>
+            <div class="form-row">
+              <label>Description</label>
+              <textarea name="description" rows="3" placeholder="What does this project do?"></textarea>
+            </div>
+            <div class="form-row">
+              <label>Category</label>
+              <select name="category">
+                <option value="crm">CRM</option>
+                <option value="ecommerce">E-Commerce</option>
+                <option value="saas">SaaS</option>
+                <option value="analytics">Analytics</option>
+                <option value="website">Website</option>
+                <option value="mobile">Mobile App</option>
+                <option value="general" selected>General</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Repo URL</label>
+              <input type="url" name="repo_url" placeholder="https://github.com/..." />
+            </div>
+            <div class="form-row">
+              <label>Live URL</label>
+              <input type="url" name="live_url" placeholder="https://..." />
+            </div>
+            <div class="form-row">
+              <label>Status</label>
+              <select name="status">
+                <option value="active">Active</option>
+                <option value="in_progress">In Progress</option>
+                <option value="paused">Paused</option>
+                <option value="complete">Complete</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Project</button>
+          </form>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Project Detail Modal -->
+  <div id="project-modal" class="modal hidden">
+    <div class="modal-backdrop" onclick="closeModal()"></div>
+    <div class="modal-panel">
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Bug Detail Modal -->
+  <div id="bug-modal" class="modal hidden">
+    <div class="modal-backdrop" onclick="closeBugModal()"></div>
+    <div class="modal-panel modal-panel-wide">
+      <button class="modal-close" onclick="closeBugModal()">&#x2715;</button>
+      <div id="bug-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toast-container"></div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
